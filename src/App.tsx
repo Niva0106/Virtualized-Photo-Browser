@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PhotoViewer from "./components/PhotoViewer";
 import FolderPicker from "./components/FolderPicker";
 import type { Photo } from "./types/photo";
@@ -8,6 +8,14 @@ import VirtualPhotoGrid from "./components/VirtualPhotoGrid";
 function App() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      photos.forEach((photo) => {
+        URL.revokeObjectURL(photo.url);
+      });
+    };
+  }, [photos]);
 
   const handleFilesSelected = (files: FileList) => {
     const imageFiles = Array.from(files).filter(isImageFile);
@@ -22,7 +30,6 @@ function App() {
 
     setPhotos(photoList);
   };
-
   const closeViewer = useCallback(() => {
     setSelectedIndex(null);
   }, []);
