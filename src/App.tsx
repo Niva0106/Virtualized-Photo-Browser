@@ -2,6 +2,7 @@ import { useState } from "react";
 import FolderPicker from "./components/FolderPicker";
 import type{ Photo } from "./types/photo.ts";
 import { isImageFile } from "./utils/fileHelpers";
+import VirtualPhotoGrid from "./components/VirtualPhotoGrid";
 
 function App() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -28,16 +29,7 @@ function App() {
 
       <p>Total photos: {photos.length}</p>
 
-      <div>
-        {photos.map((photo) => (
-          <img
-            key={photo.id}
-            src={photo.url}
-            alt={photo.name}
-            width="150"
-          />
-        ))}
-      </div>
+      <VirtualPhotoGrid photos={photos} />
     </div>
   );
 }
