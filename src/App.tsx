@@ -39,6 +39,10 @@ function App() {
 
       <p>Total photos: {photos.length}</p>
 
+      {photos.length === 0 && (
+        <p>No photos found. Please select a folder containing images.</p>
+      )}
+
       <VirtualPhotoGrid
         photos={photos}
         onPhotoClick={setSelectedIndex}

@@ -59,16 +59,19 @@ function VirtualPhotoGrid({ photos, onPhotoClick }: VirtualPhotoGridProps) {
             >
               {rowPhotos.map((photo) => (
                 <img
-                key={photo.id}
-                src={photo.url}
-                alt={photo.name}
-                onClick={() => onPhotoClick(startIndex + rowPhotos.indexOf(photo))}
-                style={{
+                  key={photo.id}
+                  src={photo.url}
+                  alt={photo.name}
+                  onClick={() => onPhotoClick(startIndex + rowPhotos.indexOf(photo))}
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                  style={{
                     width: "100%",
                     height: "160px",
                     objectFit: "cover",
                     cursor: "pointer",
-                }}
+                  }}
                 />
               ))}
             </div>
@@ -76,7 +79,10 @@ function VirtualPhotoGrid({ photos, onPhotoClick }: VirtualPhotoGridProps) {
         })}
       </div>
     </div>
+
+    
   );
 }
+
 
 export default VirtualPhotoGrid;
