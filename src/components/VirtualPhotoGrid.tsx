@@ -4,9 +4,10 @@ import type { Photo } from "../types/photo";
 
 interface VirtualPhotoGridProps {
   photos: Photo[];
+  onPhotoClick: (index: number) => void;
 }
 
-function VirtualPhotoGrid({ photos }: VirtualPhotoGridProps) {
+function VirtualPhotoGrid({ photos, onPhotoClick }: VirtualPhotoGridProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const columns = 4;
@@ -58,14 +59,16 @@ function VirtualPhotoGrid({ photos }: VirtualPhotoGridProps) {
             >
               {rowPhotos.map((photo) => (
                 <img
-                  key={photo.id}
-                  src={photo.url}
-                  alt={photo.name}
-                  style={{
+                key={photo.id}
+                src={photo.url}
+                alt={photo.name}
+                onClick={() => onPhotoClick(startIndex + rowPhotos.indexOf(photo))}
+                style={{
                     width: "100%",
                     height: "160px",
                     objectFit: "cover",
-                  }}
+                    cursor: "pointer",
+                }}
                 />
               ))}
             </div>

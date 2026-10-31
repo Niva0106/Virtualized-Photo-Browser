@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import PhotoViewer from "./components/PhotoViewer";
 import FolderPicker from "./components/FolderPicker";
-import type{ Photo } from "./types/photo.ts";
+import type { Photo } from "./types/photo";
 import { isImageFile } from "./utils/fileHelpers";
 import VirtualPhotoGrid from "./components/VirtualPhotoGrid";
 
 function App() {
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleFilesSelected = (files: FileList) => {
     const imageFiles = Array.from(files).filter(isImageFile);
@@ -21,6 +23,14 @@ function App() {
     setPhotos(photoList);
   };
 
+  const closeViewer = useCallback(() => {
+    setSelectedIndex(null);
+  }, []);
+
+  const navigatePhoto = useCallback((index: number) => {
+    setSelectedIndex(index);
+  }, []);
+
   return (
     <div>
       <h1>Virtualized Photo Browser</h1>
@@ -29,7 +39,19 @@ function App() {
 
       <p>Total photos: {photos.length}</p>
 
-      <VirtualPhotoGrid photos={photos} />
+      <VirtualPhotoGrid
+        photos={photos}
+        onPhotoClick={setSelectedIndex}
+      />
+
+      {selectedIndex !== null && (
+        <PhotoViewer
+          photos={photos}
+          selectedIndex={selectedIndex}
+          onClose={closeViewer}
+          onNavigate={navigatePhoto}
+        />
+      )}
     </div>
   );
 }
