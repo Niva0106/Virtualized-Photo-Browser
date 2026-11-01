@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import type { Photo } from "../types/photo";
 
 interface PhotoViewerProps {
@@ -16,6 +17,17 @@ function PhotoViewer({
 }: PhotoViewerProps) {
   const photo = photos[selectedIndex];
 
+  const [dimensions, setDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // Reset dimensions when another photo is selected
+  useEffect(() => {
+    setDimensions(null);
+  }, [selectedIndex]);
+
+  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") {
@@ -43,22 +55,30 @@ function PhotoViewer({
   if (!photo) return null;
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.9)",
-      color: "white",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-    }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.9)",
+        color: "white",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+      }}
+    >
       <button onClick={onClose}>Close</button>
 
       <img
         src={photo.url}
         alt={photo.name}
+        onLoad={(event) => {
+          setDimensions({
+            width: event.currentTarget.naturalWidth,
+            height: event.currentTarget.naturalHeight,
+          });
+        }}
         style={{
           maxWidth: "80%",
           maxHeight: "70vh",
@@ -67,12 +87,23 @@ function PhotoViewer({
       />
 
       <p>{photo.name}</p>
-      <p>Size: {(photo.size / 1024).toFixed(2)} KB</p>
+
+      <p>
+        Size: {(photo.size / 1024).toFixed(2)} KB
+      </p>
+
+      {dimensions && (
+        <p>
+          Dimensions: {dimensions.width} × {dimensions.height} px
+        </p>
+      )}
 
       <div>
         <button
           onClick={() =>
-            onNavigate((selectedIndex - 1 + photos.length) % photos.length)
+            onNavigate(
+              (selectedIndex - 1 + photos.length) % photos.length
+            )
           }
         >
           Previous
@@ -87,7 +118,9 @@ function PhotoViewer({
         </button>
       </div>
 
-      <p>{selectedIndex + 1} / {photos.length}</p>
+      <p>
+        {selectedIndex + 1} / {photos.length}
+      </p>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from "react";
 import PhotoViewer from "./components/PhotoViewer";
 import FolderPicker from "./components/FolderPicker";
@@ -9,6 +10,7 @@ function App() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  // Clean up object URLs when photos change or the component unmounts
   useEffect(() => {
     return () => {
       photos.forEach((photo) => {
@@ -17,6 +19,7 @@ function App() {
     };
   }, [photos]);
 
+  // Handle folder selection
   const handleFilesSelected = (files: FileList) => {
     const imageFiles = Array.from(files).filter(isImageFile);
 
@@ -28,12 +31,16 @@ function App() {
       size: file.size,
     }));
 
+    setSelectedIndex(null);
     setPhotos(photoList);
   };
+
+  // Close the Photo Viewer
   const closeViewer = useCallback(() => {
     setSelectedIndex(null);
   }, []);
 
+  // Navigate between photos
   const navigatePhoto = useCallback((index: number) => {
     setSelectedIndex(index);
   }, []);
