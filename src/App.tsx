@@ -1,46 +1,18 @@
-
-import { useCallback, useEffect, useState } from "react";
-import PhotoViewer from "./components/PhotoViewer";
-import FolderPicker from "./components/FolderPicker";
-import type { Photo } from "./types/photo";
-import { isImageFile } from "./utils/fileHelpers";
-import VirtualPhotoGrid from "./components/VirtualPhotoGrid";
+import { useCallback, useState } from "react";
+import PhotoViewer from "./features/photo-browser/components/PhotoViewer";
+import FolderPicker from "./features/photo-browser/components/FolderPicker";
+import VirtualPhotoGrid from "./features/photo-browser/components/VirtualPhotoGrid";
+import { usePhotoLibrary } from "./features/photo-browser/hooks/usePhotoLibrary";
 
 function App() {
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const { photos, handleFilesSelected } = usePhotoLibrary();
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Clean up object URLs when photos change or the component unmounts
-  useEffect(() => {
-    return () => {
-      photos.forEach((photo) => {
-        URL.revokeObjectURL(photo.url);
-      });
-    };
-  }, [photos]);
-
-  // Handle folder selection
-  const handleFilesSelected = (files: FileList) => {
-    const imageFiles = Array.from(files).filter(isImageFile);
-
-    const photoList: Photo[] = imageFiles.map((file, index) => ({
-      id: `${file.name}-${index}`,
-      file: file,
-      url: URL.createObjectURL(file),
-      name: file.name,
-      size: file.size,
-    }));
-
-    setSelectedIndex(null);
-    setPhotos(photoList);
-  };
-
-  // Close the Photo Viewer
   const closeViewer = useCallback(() => {
     setSelectedIndex(null);
   }, []);
 
-  // Navigate between photos
   const navigatePhoto = useCallback((index: number) => {
     setSelectedIndex(index);
   }, []);
@@ -49,7 +21,12 @@ function App() {
     <div>
       <h1>Virtualized Photo Browser</h1>
 
-      <FolderPicker onFilesSelected={handleFilesSelected} />
+      <FolderPicker
+        onFilesSelected={(files) => {
+          setSelectedIndex(null);
+          handleFilesSelected(files);
+        }}
+      />
 
       <p>Total photos: {photos.length}</p>
 
@@ -57,10 +34,7 @@ function App() {
         <p>No photos found. Please select a folder containing images.</p>
       )}
 
-      <VirtualPhotoGrid
-        photos={photos}
-        onPhotoClick={setSelectedIndex}
-      />
+      <VirtualPhotoGrid photos={photos} onPhotoClick={setSelectedIndex} />
 
       {selectedIndex !== null && (
         <PhotoViewer

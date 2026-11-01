@@ -1,6 +1,7 @@
 
-import { useEffect, useState } from "react";
-import type { Photo } from "../types/photo";
+import { useState } from "react";
+import type { Photo } from "../../../types/photo";
+import { usePhotoNavigation } from "../hooks/usePhotoNavigation";
 
 interface PhotoViewerProps {
   photos: Photo[];
@@ -18,41 +19,23 @@ function PhotoViewer({
   const photo = photos[selectedIndex];
 
   const [dimensions, setDimensions] = useState<{
+    photoId: string;
     width: number;
     height: number;
   } | null>(null);
 
-  // Reset dimensions when another photo is selected
-  useEffect(() => {
-    setDimensions(null);
-  }, [selectedIndex]);
-
   // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") {
-        onNavigate((selectedIndex + 1) % photos.length);
-      }
-
-      if (event.key === "ArrowLeft") {
-        onNavigate(
-          (selectedIndex - 1 + photos.length) % photos.length
-        );
-      }
-
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedIndex, photos.length, onNavigate, onClose]);
+  usePhotoNavigation({
+    selectedIndex,
+    photosLength: photos.length,
+    onNavigate,
+    onClose,
+  });
 
   if (!photo) return null;
+
+  const currentDimensions =
+    dimensions?.photoId === photo.id ? dimensions : null;
 
   return (
     <div
@@ -75,6 +58,7 @@ function PhotoViewer({
         alt={photo.name}
         onLoad={(event) => {
           setDimensions({
+            photoId: photo.id,
             width: event.currentTarget.naturalWidth,
             height: event.currentTarget.naturalHeight,
           });
@@ -88,13 +72,12 @@ function PhotoViewer({
 
       <p>{photo.name}</p>
 
-      <p>
-        Size: {(photo.size / 1024).toFixed(2)} KB
-      </p>
+      <p>Size: {(photo.size / 1024).toFixed(2)} KB</p>
 
-      {dimensions && (
+      {currentDimensions && (
         <p>
-          Dimensions: {dimensions.width} × {dimensions.height} px
+          Dimensions: {currentDimensions.width} ×{" "}
+          {currentDimensions.height} px
         </p>
       )}
 

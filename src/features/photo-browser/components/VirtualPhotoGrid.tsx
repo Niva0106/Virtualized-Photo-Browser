@@ -1,41 +1,18 @@
-
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import type { Photo } from "../types/photo";
+import type { Photo } from "../../../types/photo";
+import { useResponsiveColumns } from "../hooks/useResponsiveColumns";
 
 interface VirtualPhotoGridProps {
   photos: Photo[];
   onPhotoClick: (index: number) => void;
 }
 
-function VirtualPhotoGrid({
-  photos,
-  onPhotoClick,
-}: VirtualPhotoGridProps) {
+function VirtualPhotoGrid({ photos, onPhotoClick }: VirtualPhotoGridProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Adjust the number of columns based on screen width
-  const [columns, setColumns] = useState(4);
-
-  useEffect(() => {
-    const updateColumns = () => {
-      if (window.innerWidth < 600) {
-        setColumns(2);
-      } else if (window.innerWidth < 900) {
-        setColumns(3);
-      } else {
-        setColumns(4);
-      }
-    };
-
-    updateColumns();
-
-    window.addEventListener("resize", updateColumns);
-
-    return () => {
-      window.removeEventListener("resize", updateColumns);
-    };
-  }, []);
+  // Get the number of columns based on screen width
+  const columns = useResponsiveColumns();
 
   // Calculate the total number of rows
   const rowCount = Math.ceil(photos.length / columns);
@@ -54,7 +31,7 @@ function VirtualPhotoGrid({
   const renderedPhotoCount = virtualRows.reduce(
     (count, row) =>
       count + Math.min(columns, photos.length - row.index * columns),
-    0
+    0,
   );
 
   return (
@@ -79,10 +56,7 @@ function VirtualPhotoGrid({
           {virtualRows.map((virtualRow) => {
             const startIndex = virtualRow.index * columns;
 
-            const rowPhotos = photos.slice(
-              startIndex,
-              startIndex + columns
-            );
+            const rowPhotos = photos.slice(startIndex, startIndex + columns);
 
             return (
               <div

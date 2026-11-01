@@ -1,4 +1,3 @@
-
 # Virtualized Photo Browser
 
 A responsive photo browser built with **React, TypeScript, and TanStack Virtual**. Browse images from a local folder using a virtualized grid and a full-screen photo viewer.
